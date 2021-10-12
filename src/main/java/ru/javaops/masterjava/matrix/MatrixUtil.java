@@ -1,8 +1,10 @@
 package ru.javaops.masterjava.matrix;
 
+import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * gkislin
@@ -10,10 +12,23 @@ import java.util.concurrent.ExecutorService;
  */
 public class MatrixUtil {
 
-    // TODO implement parallel multiplication matrixA*matrixB
     public static int[][] concurrentMultiply(int[][] matrixA, int[][] matrixB, ExecutorService executor) throws InterruptedException, ExecutionException {
+        CompletionService<Integer> completionService = new ExecutorCompletionService<>(executor);
         final int matrixSize = matrixA.length;
         final int[][] matrixC = new int[matrixSize][matrixSize];
+
+        List<Future<Integer>> futures =
+                IntStream.range(0, matrixSize)
+                        .parallel()
+                        .mapToObj(index ->
+                                completionService.submit(
+                                        () -> computeMatrixPart(matrixA, matrixB, matrixC, matrixSize, index), index))
+                        .collect(Collectors.toList());
+
+        while (!futures.isEmpty()) {
+            Future<Integer> completionFuture = completionService.take();
+            futures.remove(completionFuture);
+        }
 
         return matrixC;
     }
@@ -22,25 +37,9 @@ public class MatrixUtil {
         final int matrixSize = matrixA.length;
         final int[][] matrixC = new int[matrixSize][matrixSize];
 
-        int[] matrixBColumn;
-        int[] matrixARow;
-
         try {
             for (int i = 0; ; i++) {
-                matrixBColumn = new int[matrixSize];
-                for (int j = 0; j < matrixSize; j++) {
-                    matrixBColumn[j] = matrixB[j][i];
-                }
-
-                for (int j = 0; j < matrixSize; j++) {
-                    matrixARow = matrixA[j];
-
-                    int sum = 0;
-                    for (int k = 0; k < matrixSize; k++) {
-                        sum += matrixARow[k] * matrixBColumn[k];
-                    }
-                    matrixC[i][j] = sum;
-                }
+                computeMatrixPart(matrixA, matrixB, matrixC, matrixSize, i);
             }
         } catch (IndexOutOfBoundsException ignored) {
         }
@@ -70,5 +69,28 @@ public class MatrixUtil {
             }
         }
         return true;
+    }
+
+    private static void computeMatrixPart(int[][] matrixA,
+                                          int[][] matrixB,
+                                          int[][] matrixC,
+                                          int matrixSize,
+                                          int index) {
+        int[] matrixBColumn = new int[matrixSize];
+        int[] matrixARow;
+
+        for (int i = 0; i < matrixSize; i++) {
+            matrixBColumn[i] = matrixB[i][index];
+        }
+
+        for (int i = 0; i < matrixSize; i++) {
+            matrixARow = matrixA[i];
+
+            int sum = 0;
+            for (int j = 0; j < matrixSize; j++) {
+                sum += matrixARow[j] * matrixBColumn[j];
+            }
+            matrixC[index][i] = sum;
+        }
     }
 }
