@@ -1,23 +1,50 @@
 <Payload xmlns="http://javaops.ru"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://javaops.ru payload.xsd">
-    <Users>
-        <User flag="active" city="kiv">
-            <email>gmail@gmail.com</email>
+    <users>
+        <User flag="active" email="gmail@gmail.com" city="kiv">
             <fullName>Full Name</fullName>
+            <groups>topJava01 topJava02</groups>
         </User>
-        <User flag="superuser" city="spb">
-            <email>admin@javaops.ru</email>
+        <User flag="superuser" email="admin@javaops.ru" city="spb">
             <fullName>Admin</fullName>
+            <groups>topJava01 topJava02 topJava03 masterJava01 masterJava02</groups>
         </User>
-        <User flag="deleted" city="spb">
-            <email>mail@yandex.ru</email>
+        <User flag="deleted" email="mail@yandex.ru" city="spb">
             <fullName>Deleted</fullName>
+            <groups>topJava01 masterJava01 masterJava02</groups>
         </User>
-    </Users>
-    <Cities>
+        <User flag="active" email="zhenyria@mail.ru" city="mnsk">
+            <fullName>Zhenya</fullName>
+            <groups>topJava02 masterJava02</groups>
+        </User>
+        <User flag="active" email="dog@mail.ru" city="kiv">
+            <fullName>Jhonny Petrov</fullName>
+            <groups>masterJava02</groups>
+        </User>
+    </users>
+    <cities>
         <City id="spb">Санкт-Петербург</City>
         <City id="kiv">Киев</City>
         <City id="mnsk">Минск</City>
-    </Cities>
+    </cities>
+    <projects>
+        <Project>
+            <name>topJava</name>
+            <description>TopJava project</description>
+            <groups>
+                <Group type="finished" name="topJava01"/>
+                <Group type="current" name="topJava02"/>
+                <Group type="registering" name="topJava03"/>
+            </groups>
+        </Project>
+        <Project>
+            <name>masterJava</name>
+            <description>MasterJava project</description>
+            <groups>
+                <Group type="finished" name="masterJava01"/>
+                <Group type="registering" name="masterJava02"/>
+            </groups>
+        </Project>
+    </projects>
 </Payload>
