@@ -14,47 +14,47 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for flagType.
+ * <p>Java class for groupTypeType.
  *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
- * &lt;simpleType name="flagType"&gt;
+ * &lt;simpleType name="groupTypeType"&gt;
  *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string"&gt;
- *     &lt;enumeration value="active"/&gt;
- *     &lt;enumeration value="deleted"/&gt;
- *     &lt;enumeration value="superuser"/&gt;
+ *     &lt;enumeration value="registering"/&gt;
+ *     &lt;enumeration value="current"/&gt;
+ *     &lt;enumeration value="finished"/&gt;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
  */
-@XmlType(name = "flagType")
+@XmlType(name = "groupTypeType")
 @XmlEnum
-public enum FlagType {
+public enum GroupTypeType {
 
-    @XmlEnumValue("active")
-    ACTIVE("active"),
-    @XmlEnumValue("deleted")
-    DELETED("deleted"),
-    @XmlEnumValue("superuser")
-    SUPERUSER("superuser");
+    @XmlEnumValue("registering")
+    REGISTERING("registering"),
+    @XmlEnumValue("current")
+    CURRENT("current"),
+    @XmlEnumValue("finished")
+    FINISHED("finished");
     private final String value;
 
-    FlagType(String v) {
+    GroupTypeType(String v) {
         value = v;
     }
 
-    public String value() {
-        return value;
-    }
-
-    public static FlagType fromValue(String v) {
-        for (FlagType c: FlagType.values()) {
+    public static GroupTypeType fromValue(String v) {
+        for (GroupTypeType c : GroupTypeType.values()) {
             if (c.value.equals(v)) {
                 return c;
             }
         }
         throw new IllegalArgumentException(v);
+    }
+
+    public String value() {
+        return value;
     }
 
 }
