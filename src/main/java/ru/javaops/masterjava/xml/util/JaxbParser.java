@@ -7,7 +7,11 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.PropertyException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.Writer;
 
 
 /**
@@ -43,14 +47,17 @@ public class JaxbParser {
     }
 
     // Unmarshaller
+    @SuppressWarnings("unchecked")
     public <T> T unmarshal(InputStream is) throws JAXBException {
         return (T) jaxbUnmarshaller.unmarshal(is);
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T unmarshal(Reader reader) throws JAXBException {
         return (T) jaxbUnmarshaller.unmarshal(reader);
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T unmarshal(String str) throws JAXBException {
         return (T) jaxbUnmarshaller.unmarshal(str);
     }

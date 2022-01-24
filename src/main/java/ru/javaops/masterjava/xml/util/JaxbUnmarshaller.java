@@ -1,6 +1,7 @@
 package ru.javaops.masterjava.xml.util;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.validation.Schema;
@@ -9,7 +10,7 @@ import java.io.Reader;
 import java.io.StringReader;
 
 public class JaxbUnmarshaller {
-    private Unmarshaller unmarshaller;
+    private final Unmarshaller unmarshaller;
 
     public JaxbUnmarshaller(JAXBContext ctx) throws JAXBException {
         unmarshaller = ctx.createUnmarshaller();
@@ -19,12 +20,14 @@ public class JaxbUnmarshaller {
         unmarshaller.setSchema(schema);
     }
 
-    public synchronized Object unmarshal(InputStream is) throws JAXBException {
-        return unmarshaller.unmarshal(is);
+    @SuppressWarnings("unchecked")
+    public synchronized <T> T unmarshal(InputStream is) throws JAXBException {
+        return ((JAXBElement<T>) unmarshaller.unmarshal(is)).getValue();
     }
 
-    public synchronized Object unmarshal(Reader reader) throws JAXBException {
-        return unmarshaller.unmarshal(reader);
+    @SuppressWarnings("unchecked")
+    public synchronized <T> T unmarshal(Reader reader) throws JAXBException {
+        return ((JAXBElement<T>) unmarshaller.unmarshal(reader)).getValue();
     }
 
     public Object unmarshal(String str) throws JAXBException {

@@ -71,19 +71,15 @@
     </xs:complexType>
 
     <xs:complexType name="groupType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute type="xs:ID" name="name"/>
-                <xs:attribute type="groupTypeType" name="type" use="required"/>
-            </xs:extension>
-        </xs:simpleContent>
+        <xs:attribute type="xs:ID" name="name"/>
+        <xs:attribute type="groupTypeType" name="type" use="required"/>
     </xs:complexType>
 
     <xs:simpleType name="groupTypeType">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="registering"/>
-            <xs:enumeration value="current"/>
-            <xs:enumeration value="finished"/>
+            <xs:enumeration value="REGISTERING"/>
+            <xs:enumeration value="CURRENT"/>
+            <xs:enumeration value="FINISHED"/>
         </xs:restriction>
     </xs:simpleType>
 

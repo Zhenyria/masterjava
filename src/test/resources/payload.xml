@@ -33,17 +33,17 @@
             <name>topJava</name>
             <description>TopJava project</description>
             <groups>
-                <Group type="finished" name="topJava01"/>
-                <Group type="current" name="topJava02"/>
-                <Group type="registering" name="topJava03"/>
+                <Group type="FINISHED" name="topJava01"/>
+                <Group type="CURRENT" name="topJava02"/>
+                <Group type="REGISTERING" name="topJava03"/>
             </groups>
         </Project>
         <Project>
             <name>masterJava</name>
             <description>MasterJava project</description>
             <groups>
-                <Group type="finished" name="masterJava01"/>
-                <Group type="registering" name="masterJava02"/>
+                <Group type="FINISHED" name="masterJava01"/>
+                <Group type="REGISTERING" name="masterJava02"/>
             </groups>
         </Project>
     </projects>
