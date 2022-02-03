@@ -1,4 +1,4 @@
-package ru.javaops.masterjava.service;
+package ru.javaops.masterjava.service.xml;
 
 import ru.javaops.masterjava.xml.schema.GroupType;
 import ru.javaops.masterjava.xml.schema.PayloadType;

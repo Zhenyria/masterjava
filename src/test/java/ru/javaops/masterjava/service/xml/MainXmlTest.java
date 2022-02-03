@@ -1,4 +1,4 @@
-package ru.javaops.masterjava.service;
+package ru.javaops.masterjava.service.xml;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -13,16 +13,16 @@ import static ru.javaops.masterjava.test_util.MainXmlTestUtil.MASTERJAVA_NAME;
 import static ru.javaops.masterjava.test_util.MainXmlTestUtil.MASTERJAVA_USERS;
 import static ru.javaops.masterjava.test_util.MainXmlTestUtil.TOPJAVA_NAME;
 import static ru.javaops.masterjava.test_util.MainXmlTestUtil.TOPJAVA_USERS;
+import static ru.javaops.masterjava.test_util.XmlServiceTestUtil.PATH_TO_XML;
 
 public class MainXmlTest {
     private static final String pathToSchema = "payload.xsd";
-    private static final String pathToXml = "payload.xml";
     private MainXml mainXml;
 
     @Before
     public void setUp() {
         this.mainXml = new MainXml(pathToSchema, ObjectFactory.class);
-        this.mainXml.loadData(pathToXml);
+        this.mainXml.loadData(PATH_TO_XML);
     }
 
     @Test

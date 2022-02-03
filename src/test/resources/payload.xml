@@ -22,6 +22,9 @@
             <fullName>Jhonny Petrov</fullName>
             <groups>masterJava02</groups>
         </User>
+        <User flag="active" email="empty@mail.ru" city="kiv">
+            <fullName>Empty</fullName>
+        </User>
     </users>
     <cities>
         <City id="spb">Санкт-Петербург</City>
