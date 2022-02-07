@@ -35,10 +35,6 @@ public class StaxStreamProcessor implements AutoCloseable {
         return false;
     }
 
-    public boolean hasNextMatch(int event, String value) throws XMLStreamException {
-        return reader.hasNext() && reader.next() == event && getValue(event).equals(value);
-    }
-
     public boolean parseElementUntil(String borderElementName, String... values) throws XMLStreamException {
         Set<String> valuesSet = Arrays.stream(values).collect(Collectors.toSet());
         while (reader.hasNext()) {
