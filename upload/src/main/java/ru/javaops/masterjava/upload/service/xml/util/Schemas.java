@@ -1,4 +1,4 @@
-package ru.javaops.masterjava.upload.xml.util;
+package ru.javaops.masterjava.upload.service.xml.util;
 
 import com.google.common.io.Resources;
 import org.xml.sax.SAXException;

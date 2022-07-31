@@ -1,4 +1,4 @@
-package ru.javaops.masterjava.upload.xml.util;
+package ru.javaops.masterjava.upload.service.xml.util;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;

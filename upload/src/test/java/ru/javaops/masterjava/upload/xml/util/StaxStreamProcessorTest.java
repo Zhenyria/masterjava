@@ -2,6 +2,7 @@ package ru.javaops.masterjava.upload.xml.util;
 
 import com.google.common.io.Resources;
 import org.junit.Test;
+import ru.javaops.masterjava.upload.service.xml.util.StaxStreamProcessor;
 
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;

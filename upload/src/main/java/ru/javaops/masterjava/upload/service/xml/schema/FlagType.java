@@ -1,5 +1,5 @@
 
-package ru.javaops.masterjava.upload.xml.schema;
+package ru.javaops.masterjava.upload.service.xml.schema;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
