@@ -8,10 +8,10 @@ import ru.javaops.masterjava.upload.service.xml.schema.ObjectFactory;
 import ru.javaops.masterjava.upload.service.xml.schema.Payload;
 import ru.javaops.masterjava.upload.service.xml.schema.Project;
 import ru.javaops.masterjava.upload.service.xml.schema.User;
-import ru.javaops.masterjava.upload.service.xml.util.JaxbParser;
 import ru.javaops.masterjava.upload.service.xml.util.Schemas;
 import ru.javaops.masterjava.upload.service.xml.util.StaxStreamProcessor;
 import ru.javaops.masterjava.upload.service.xml.util.XsltProcessor;
+import ru.javaops.masterjava.upload.service.xml.util.jaxb.JaxbParser;
 
 import javax.xml.stream.events.XMLEvent;
 import java.io.InputStream;
@@ -128,7 +128,7 @@ public class MainXml {
 
     private static String toHtml(Set<User> users, String projectName) {
         final ContainerTag table = table().with(
-                tr().with(th("FullName"), th("email")))
+                        tr().with(th("FullName"), th("email")))
                 .attr("border", "1")
                 .attr("cellpadding", "8")
                 .attr("cellspacing", "0");

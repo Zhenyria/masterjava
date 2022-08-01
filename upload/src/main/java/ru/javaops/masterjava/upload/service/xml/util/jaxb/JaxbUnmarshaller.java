@@ -1,4 +1,4 @@
-package ru.javaops.masterjava.upload.service.xml.util;
+package ru.javaops.masterjava.upload.service.xml.util.jaxb;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -9,8 +9,8 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-public class JaxbUnmarshaller {
-    private Unmarshaller unmarshaller;
+class JaxbUnmarshaller {
+    private final Unmarshaller unmarshaller;
 
     public JaxbUnmarshaller(JAXBContext ctx) throws JAXBException {
         unmarshaller = ctx.createUnmarshaller();

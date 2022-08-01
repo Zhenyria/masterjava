@@ -5,8 +5,8 @@ import org.junit.Test;
 import ru.javaops.masterjava.upload.service.xml.schema.CityType;
 import ru.javaops.masterjava.upload.service.xml.schema.ObjectFactory;
 import ru.javaops.masterjava.upload.service.xml.schema.Payload;
-import ru.javaops.masterjava.upload.service.xml.util.JaxbParser;
 import ru.javaops.masterjava.upload.service.xml.util.Schemas;
+import ru.javaops.masterjava.upload.service.xml.util.jaxb.JaxbParser;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
