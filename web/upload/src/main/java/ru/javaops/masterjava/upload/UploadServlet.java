@@ -1,18 +1,17 @@
 package ru.javaops.masterjava.upload;
 
 import org.thymeleaf.context.WebContext;
-import ru.javaops.masterjava.persist.model.User;
 
-import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
+import javax.xml.bind.JAXBException;
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import static ru.javaops.masterjava.common.web.ThymeleafListener.engine;
 
@@ -23,13 +22,13 @@ public class UploadServlet extends HttpServlet {
     private final UserProcessor userProcessor = new UserProcessor();
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         final WebContext webContext = new WebContext(req, resp, req.getServletContext(), req.getLocale());
         engine.process("upload", webContext, resp.getWriter());
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         final WebContext webContext = new WebContext(req, resp, req.getServletContext(), req.getLocale());
 
         try {
@@ -38,14 +37,34 @@ public class UploadServlet extends HttpServlet {
             if (filePart.getSize() == 0) {
                 throw new IllegalStateException("Upload file have not been selected");
             }
-            try (InputStream is = filePart.getInputStream()) {
-                List<User> users = userProcessor.process(is);
-                webContext.setVariable("users", users);
-                engine.process("result", webContext, resp.getWriter());
+
+            String chunkSizeParameter = req.getParameter("chunkSize");
+            if (chunkSizeParameter == null) {
+                throw new IllegalStateException("Chunk size must be defined");
             }
+
+            int chunkSize = Integer.parseInt(chunkSizeParameter);
+
+            UserProcessor.UsersInsertingResult usersInsertingResult = insertUsers(filePart, chunkSize);
+
+            webContext.setVariable("insertedUsers", usersInsertingResult.getInsertedUsers());
+            webContext.setVariable("ignoredUsers", usersInsertingResult.getIgnoredUsers());
+            webContext.setVariable(
+                    "failedUserInsertingRangeData",
+                    usersInsertingResult.getFailedUserInsertingRangeDataList());
+            engine.process("result", webContext, resp.getWriter());
         } catch (Exception e) {
             webContext.setVariable("exception", e);
             engine.process("exception", webContext, resp.getWriter());
+        }
+    }
+
+    private UserProcessor.UsersInsertingResult insertUsers(
+            Part xmlFilePart,
+            int chunkSize
+    ) throws XMLStreamException, JAXBException, IOException {
+        try (InputStream is = xmlFilePart.getInputStream()) {
+            return userProcessor.process(is, chunkSize);
         }
     }
 }

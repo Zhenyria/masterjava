@@ -4,24 +4,58 @@
     <title>Uploaded users</title>
 </head>
 <body>
-<h4><a href="">Upload XML</a></h4>
+<h4><a href="/upload/xml">Upload XML</a></h4>
 <h3>Uploaded users</h3>
-<table border="1" cellpadding="8" cellspacing="0">
-    <thead>
-    <tr>
-        <th>Full Name</th>
-        <th>Email</th>
-        <th>Flag</th>
-    </tr>
-    </thead>
-    <tbody>
-    <!--/*@thymesVar id="users" type="java.util.List<ru.javaops.masterjava.model.User>"*/-->
-    <tr th:each="user : ${users}">
-        <td th:text="${user.fullName}"></td>
-        <td th:utext="${user.email}"></td>
-        <td th:text="${user.flag}"></td>
-    </tr>
-    </tbody>
-</table>
+<div>
+    <table>
+        <thead>
+        <tr>
+            <th>Inserted users</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="insertedUser : ${insertedUsers}">
+            <td th:text="${insertedUser}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div>
+    <table>
+        <thead>
+        <tr>
+            <th>Ignored users</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="ignoredUser : ${ignoredUsers}">
+            <td th:text="${ignoredUser}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div>
+    <table>
+        <thead>
+        <tr>
+            <th>Failed range</th>
+            <th>Exception message</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!--/*@thymesVar id="failedUserInsertingRangeData" type="java.util.List<ru.javaops.masterjava.upload.UserProcessor.FailedUsersInsertingRangeData>"*/-->
+        <tr th:each="failedUserInsertingRange: ${failedUserInsertingRangeData}">
+            <td>
+                <ul>
+                    <li th:each="failedUser: ${failedUserInsertingRange.failedUsers}"
+                        th:text="${failedUser}">
+                    </li>
+                </ul>
+            </td>
+            <td th:text="${failedUserInsertingRange.getMessage()}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
 </body>
 </html>
