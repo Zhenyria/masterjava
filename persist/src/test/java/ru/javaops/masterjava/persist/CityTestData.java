@@ -19,21 +19,21 @@ public class CityTestData {
 
     public static final Comparator<City> CITY_COMPARATOR = Comparator.comparing(City::getName);
 
-    private static final City FIRST_CITY = new City(FIRST_CITY_ID, "Saint-Petersburg");
-    private static final City SECOND_CITY = new City(SECOND_CITY_ID, "Moscow");
-    private static final City THIRD_CITY = new City(THIRD_CITY_ID, "Gorky");
-    private static final City FOURTH_CITY = new City(FOURTH_CITY_ID, "Yekaterinburg");
-    private static final City OTHER_CITY = new City(OTHER_CITY_ID, "Omsk");
+    private static final City FIRST_CITY = new City(FIRST_CITY_ID, "spb", "Saint-Petersburg");
+    private static final City SECOND_CITY = new City(SECOND_CITY_ID, "msc", "Moscow");
+    private static final City THIRD_CITY = new City(THIRD_CITY_ID, "grk", "Gorky");
+    private static final City FOURTH_CITY = new City(FOURTH_CITY_ID, "ekb", "Yekaterinburg");
+    private static final City OTHER_CITY = new City(OTHER_CITY_ID, "omsk", "Omsk");
 
     public static List<City> getCities() {
         return Stream
                 .of(FIRST_CITY, SECOND_CITY, THIRD_CITY, FOURTH_CITY)
-                .map(city -> new City(city.getId(), city.getName()))
+                .map(city -> new City(city.getId(), city.getCode(), city.getName()))
                 .collect(Collectors.toList());
     }
 
     public static City getCityToSave() {
-        return new City(OTHER_CITY.getId(), OTHER_CITY.getName());
+        return new City(OTHER_CITY.getId(), OTHER_CITY.getCode(), OTHER_CITY.getName());
     }
 
     public static void setUp() {

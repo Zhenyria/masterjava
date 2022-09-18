@@ -2,7 +2,9 @@ package ru.javaops.masterjava.upload;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.thymeleaf.context.WebContext;
+import ru.javaops.masterjava.upload.processor.PayloadProcessor;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -13,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import static ru.javaops.masterjava.common.web.ThymeleafListener.engine;
 
@@ -23,7 +24,7 @@ import static ru.javaops.masterjava.common.web.ThymeleafListener.engine;
 public class UploadServlet extends HttpServlet {
     private static final int CHUNK_SIZE = 2000;
 
-    private final UserProcessor userProcessor = new UserProcessor();
+    private final PayloadProcessor payloadProcessor = new PayloadProcessor();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -32,6 +33,7 @@ public class UploadServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setCharacterEncoding("UTF-8");
         String message;
         int chunkSize = CHUNK_SIZE;
         try {
@@ -42,11 +44,13 @@ public class UploadServlet extends HttpServlet {
             } else {
                 Part filePart = req.getPart("fileToUpload");
                 try (InputStream is = filePart.getInputStream()) {
-                    List<UserProcessor.FailedEmails> failed = userProcessor.process(is, chunkSize);
-                    log.info("Failed users: " + failed);
+                    val payloadProcessingResult = payloadProcessor.process(is, chunkSize);
+                    log.info("Failed users: " + payloadProcessingResult.getFailedEmails());
                     final WebContext webContext =
                             new WebContext(req, resp, req.getServletContext(), req.getLocale(),
-                                    ImmutableMap.of("users", failed));
+                                    ImmutableMap.of(
+                                            "users", payloadProcessingResult.getFailedEmails(),
+                                            "failedCities", payloadProcessingResult.getFailedCities()));
                     engine.process("result", webContext, resp.getWriter());
                     return;
                 }

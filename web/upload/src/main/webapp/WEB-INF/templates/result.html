@@ -5,9 +5,29 @@
 </head>
 <body>
 <h4><a href="">Upload XML</a></h4>
+<h3>Failed cities</h3>
+<!--/*@thymesVar id="failedCities" type="java.util.List<ru.javaops.masterjava.upload.processor.CityProcessor.FailedCities>"*/-->
+<table th:if="${failedCities.size()} &#62; 0">
+    <thead>
+    <tr>
+        <td>City</td>
+        <td>Cause</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="failedCitiesRange: ${failedCities}">
+        <td>
+            <ul>
+                <li th:each="failedCity: ${failedCitiesRange.getCities()}" th:text="${failedCity}"></li>
+            </ul>
+        </td>
+        <td th:text="${failedCitiesRange.getReason()}"></td>
+    </tr>
+    </tbody>
+</table>
 <h3>Failed users</h3>
 <ul>
-    <!--/*@thymesVar id="users" type="java.util.List<ru.javaops.masterjava.upload.UserProcessor.FailedMails>"*/-->
+    <!--/*@thymesVar id="users" type="java.util.List<ru.javaops.masterjava.upload.processor.UserProcessor.FailedMails>"*/-->
     <li th:each="user: ${users}" th:text="${user}"></li>
 </ul>
 </body>

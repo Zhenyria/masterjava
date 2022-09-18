@@ -44,6 +44,7 @@ CREATE SEQUENCE cities_seq START 100000;
 CREATE TABLE cities
 (
     id       INTEGER PRIMARY KEY DEFAULT nextval('cities_seq'),
+    code     TEXT NOT NULL,
     name_val TEXT NOT NULL,
     CONSTRAINT idx_cities_name UNIQUE (name_val)
 );

@@ -13,12 +13,15 @@ import lombok.RequiredArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 public class City extends BaseEntity {
 
+    @NonNull
+    private String code;
+
     @Column("name_val")
     @NonNull
     private String name;
 
-    public City(Integer id, @NonNull String name) {
-        this(name);
+    public City(Integer id, @NonNull String code, @NonNull String name) {
+        this(code, name);
         this.id = id;
     }
 }
