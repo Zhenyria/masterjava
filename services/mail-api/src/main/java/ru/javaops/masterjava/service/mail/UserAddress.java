@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Addressee {
+public class UserAddress {
     private String email;
     private String name;
 }

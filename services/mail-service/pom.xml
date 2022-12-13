@@ -15,12 +15,27 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>Mail Service</name>
+    <properties>
+        <javax.mail.version>1.6.2</javax.mail.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>mail-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>javax.mail-api</artifactId>
+            <version>${javax.mail.version}</version>
+        </dependency>
+
+        <!-- Only for local run -->
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>${javax.mail.version}</version>
         </dependency>
     </dependencies>
 </project>
