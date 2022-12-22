@@ -1,141 +1,149 @@
 package ru.javaops.masterjava.service.mail;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import ru.javaops.masterjava.service.mail.model.MailSendingResult;
+import ru.javaops.masterjava.service.mail.model.MailSendingStatus;
+
+import javax.mail.MessagingException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class MailServiceExecutor {
-    private static final String OK = "OK";
+    private static final int BATCH_SIZE = 10;
 
-    private static final String INTERRUPTED_BY_FAULTS_NUMBER = "+++ Interrupted by faults number";
-    private static final String INTERRUPTED_BY_TIMEOUT = "+++ Interrupted by timeout";
-    private static final String INTERRUPTED_EXCEPTION = "+++ InterruptedException";
+    private static final String INTERRUPTED_BY_FAULTS = "Interrupted by faults";
+    private static final String INTERRUPTED_BY_TIMEOUT = "Interrupted by timeout";
+    private static final String INTERRUPTED_EXCEPTION = "InterruptedException";
 
     private final ExecutorService mailExecutor = Executors.newFixedThreadPool(8);
 
-    public GroupResult sendToList(final String template, final Set<String> emails) throws Exception {
-        final CompletionService<MailResult> completionService = new ExecutorCompletionService<>(mailExecutor);
+    public List<MailSendingResult> sendToList(final String title,
+                                              final String body,
+                                              final List<UserAddress> userAddresses) {
+        final CompletionService<MailsBatchSendingResult> completionService = new ExecutorCompletionService<>(mailExecutor);
 
-        List<Future<MailResult>> futures = emails.stream()
-                .map(email -> completionService.submit(() -> sendToUser(template, email)))
-                .collect(Collectors.toList());
+        AtomicInteger counter = new AtomicInteger();
+        List<Future<MailsBatchSendingResult>> futures =
+                userAddresses
+                        .stream()
+                        .collect(Collectors.groupingBy(userAddress -> counter.getAndIncrement() / BATCH_SIZE))
+                        .values()
+                        .stream()
+                        .map(userAddressesBatch ->
+                                completionService.submit(() -> sendToUsers(userAddressesBatch, title, body)))
+                        .collect(Collectors.toList());
 
-        return new Callable<GroupResult>() {
-            private int success = 0;
-            private List<MailResult> failed = new ArrayList<>();
+        Set<UserAddress> unprocessedUserAddresses = new HashSet<>(userAddresses);
+
+        return new Callable<List<MailSendingResult>>() {
+            private final List<MailSendingResult> mailSendingResults = new ArrayList<>();
 
             @Override
-            public GroupResult call() {
+            public List<MailSendingResult> call() {
                 while (!futures.isEmpty()) {
                     try {
-                        Future<MailResult> future = completionService.poll(10, TimeUnit.SECONDS);
+                        Future<MailsBatchSendingResult> future = completionService.poll(10, TimeUnit.SECONDS);
                         if (future == null) {
-                            return cancelWithFail(INTERRUPTED_BY_TIMEOUT);
+                            return cancelUnprocessed(INTERRUPTED_BY_TIMEOUT);
                         }
                         futures.remove(future);
-                        MailResult mailResult = future.get();
-                        if (mailResult.isOk()) {
-                            success++;
-                        } else {
-                            failed.add(mailResult);
-                            if (failed.size() >= 5) {
-                                return cancelWithFail(INTERRUPTED_BY_FAULTS_NUMBER);
-                            }
+                        MailsBatchSendingResult mailsBatchSendingResult = future.get();
+                        val status = mailsBatchSendingResult.getStatus();
+                        val description = mailsBatchSendingResult.getDescription();
+                        mailsBatchSendingResult.getUserAddresses().forEach(userAddress -> {
+                            mailSendingResults.add(
+                                    createMailSendingResult(
+                                            userAddress, status.getSingleMailSendingStatus(), description
+                                    )
+                            );
+                            unprocessedUserAddresses.remove(userAddress);
+                        });
+
+                        if (MailsBatchSendingResultStatus.FAILED == mailsBatchSendingResult.getStatus()) {
+                            return cancelUnprocessed(INTERRUPTED_BY_FAULTS);
                         }
                     } catch (ExecutionException e) {
-                        return cancelWithFail(e.getCause().toString());
+                        return cancelUnprocessed(e.getCause().toString());
                     } catch (InterruptedException e) {
-                        return cancelWithFail(INTERRUPTED_EXCEPTION);
+                        return cancelUnprocessed(INTERRUPTED_EXCEPTION);
                     }
                 }
-/*
-                for (Future<MailResult> future : futures) {
-                    MailResult mailResult;
-                    try {
-                        mailResult = future.get(10, TimeUnit.SECONDS);
-                    } catch (InterruptedException e) {
-                        return cancelWithFail(INTERRUPTED_EXCEPTION);
-                    } catch (ExecutionException e) {
-                        return cancelWithFail(e.getCause().toString());
-                    } catch (TimeoutException e) {
-                        return cancelWithFail(INTERRUPTED_BY_TIMEOUT);
-                    }
-                    if (mailResult.isOk()) {
-                        success++;
-                    } else {
-                        failed.add(mailResult);
-                        if (failed.size() >= 5) {
-                            return cancelWithFail(INTERRUPTED_BY_FAULTS_NUMBER);
-                        }
-                    }
-                }
-*/
-                return new GroupResult(success, failed, null);
+                return mailSendingResults;
             }
 
-            private GroupResult cancelWithFail(String cause) {
+            private List<MailSendingResult> cancelUnprocessed(String cause) {
                 futures.forEach(f -> f.cancel(true));
-                return new GroupResult(success, failed, cause);
+                unprocessedUserAddresses.forEach(userAddress ->
+                        mailSendingResults.add(
+                                createMailSendingResult(userAddress, MailSendingStatus.INTERRUPTED, cause)
+                        )
+                );
+                return mailSendingResults;
+            }
+
+            private MailSendingResult createMailSendingResult(UserAddress userAddress,
+                                                              MailSendingStatus mailSendingStatus,
+                                                              String description) {
+                return new MailSendingResult(
+                        userAddress.getEmail(),
+                        userAddress.getName(),
+                        title,
+                        body,
+                        mailSendingStatus,
+                        description,
+                        null
+                );
             }
         }.call();
     }
 
-    // dummy realization
-    public MailResult sendToUser(String template, String email) throws Exception {
+    private MailsBatchSendingResult sendToUsers(List<UserAddress> to, String title, String body) {
         try {
-            Thread.sleep(500);  //delay
-        } catch (InterruptedException e) {
-            // log cancel;
-            return null;
+            MailSender.sendMail(to, Collections.emptyList(), title, body);
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            val errorMessage = e.getMessage();
+            log.error(errorMessage);
+            return new MailsBatchSendingResult(to, MailsBatchSendingResultStatus.FAILED, errorMessage);
         }
-        return Math.random() < 0.7 ? MailResult.ok(email) : MailResult.error(email, "Error");
+        return new MailsBatchSendingResult(to, MailsBatchSendingResultStatus.SUCCESS, null);
     }
 
-    public static class MailResult {
-        private final String email;
-        private final String result;
-
-        private static MailResult ok(String email) {
-            return new MailResult(email, OK);
-        }
-
-        private static MailResult error(String email, String error) {
-            return new MailResult(email, error);
-        }
-
-        public boolean isOk() {
-            return OK.equals(result);
-        }
-
-        private MailResult(String email, String cause) {
-            this.email = email;
-            this.result = cause;
-        }
-
-        @Override
-        public String toString() {
-            return '(' + email + ',' + result + ')';
-        }
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @Getter
+    @ToString
+    private static class MailsBatchSendingResult {
+        private final List<UserAddress> userAddresses;
+        private final MailsBatchSendingResultStatus status;
+        private final String description;
     }
 
-    public static class GroupResult {
-        private final int success; // number of successfully sent email
-        private final List<MailResult> failed; // failed emails with causes
-        private final String failedCause;  // global fail cause
+    @RequiredArgsConstructor
+    @Getter
+    private enum MailsBatchSendingResultStatus {
+        SUCCESS(MailSendingStatus.SUCCESS),
+        FAILED(MailSendingStatus.FAILED);
 
-        public GroupResult(int success, List<MailResult> failed, String failedCause) {
-            this.success = success;
-            this.failed = failed;
-            this.failedCause = failedCause;
-        }
-
-        @Override
-        public String toString() {
-            return "Success: " + success + '\n' +
-                    "Failed: " + failed.toString() + '\n' +
-                    (failedCause == null ? "" : "Failed cause" + failedCause);
-        }
+        private final MailSendingStatus singleMailSendingStatus;
     }
 }
