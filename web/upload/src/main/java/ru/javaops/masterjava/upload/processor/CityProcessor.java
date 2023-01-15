@@ -1,4 +1,4 @@
-package ru.javaops.masterjava.upload;
+package ru.javaops.masterjava.upload.processor;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
