@@ -1,0 +1,14 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Mails sending result</title>
+</head>
+<body>
+<header>Mails sent</header>
+<span>Result: </span>
+<!--/*@thymesVar id="result" type="java.lang.String"*/-->
+<span th:text="${result}">Результат отправки</span>
+<br/>
+<a href="/webapp/users">Вернуться к списку пользователей</a>
+</body>
+</html>

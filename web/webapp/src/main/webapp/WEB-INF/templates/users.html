@@ -4,6 +4,10 @@
     <title>Users</title>
 </head>
 <body>
+<!--https://code.jquery.com/-->
+<!--http://stackoverflow.com/a/24070373/548473-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js" async="async">
+</script>
 <table border="1" cellpadding="8" cellspacing="0">
     <thead>
     <tr>
@@ -14,14 +18,63 @@
     </tr>
     </thead>
     <tbody>
-    <!--/*@thymesVar id="users" type="java.util.List<ru.javaops.masterjava.persist.model.User>"*/-->
+    <!--/*@thymesVar id="users" type="java.util.List<ru.javaops.masterjava.persist.model.UserDto>"*/-->
     <tr th:each="user,iter: ${users}">
         <td th:text="${iter.count}"></td>
         <td th:text="${user.fullName}"></td>
         <td th:utext="${user.email}"></td>
         <td th:text="${user.flag}"></td>
+        <td>
+            <label>
+                <input class="email-checkbox" th:value="|${user.fullName} ${user.email}|" type="checkbox"/>
+            </label>
+        </td>
     </tr>
     </tbody>
 </table>
+<label>
+    <input class="subject" type="text">
+</label>
+<label>
+    <input class="body" type="text">
+</label>
+<button onclick="send()">Send emails</button>
+<script type="text/javascript">
+    class SendMailsDto {
+        constructor(users, subject, body) {
+            this.users = users;
+            this.subject = subject;
+            this.body = body;
+        }
+    }
+
+    class UserDto {
+        constructor(fullName, email) {
+            this.fullName = fullName;
+            this.email = email;
+        }
+    }
+
+    function send() {
+        const users = $(".email-checkbox:checkbox:checked").map(function () {
+            const userData = this.value.split(' ');
+            return new UserDto(userData[0], userData[1]);
+        }).get();
+
+        const subject = $('input[type="text"].subject').val();
+
+        const body = $('input[type="text"].body').val();
+
+        const sendMailsDto = new SendMailsDto(users, subject, body);
+
+        $.post("/webapp/send-email", JSON.stringify(sendMailsDto))
+            .done(function (result) {
+                $(document.documentElement).html(result);
+            })
+            .fail(function (result) {
+                $(document.documentElement).html(result);
+            });
+    }
+</script>
 </body>
 </html>
