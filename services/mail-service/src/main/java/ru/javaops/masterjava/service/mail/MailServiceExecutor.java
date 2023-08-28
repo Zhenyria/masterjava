@@ -9,7 +9,14 @@ import ru.javaops.web.WsClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class MailServiceExecutor {
@@ -19,12 +26,19 @@ public class MailServiceExecutor {
 
     private static final ExecutorService mailExecutor = Executors.newFixedThreadPool(8);
 
-    public static GroupResult sendBulk(final Set<Addressee> addressees, final String subject, final String body) throws WebStateException {
+    public static GroupResult sendBulk(final Set<Addressee> addressees,
+                                       final String subject,
+                                       final String body,
+                                       final List<Attachment> attachments) throws WebStateException {
         final CompletionService<MailResult> completionService = new ExecutorCompletionService<>(mailExecutor);
 
         List<Future<MailResult>> futures = StreamEx.of(addressees)
-                .map(addressee -> completionService.submit(() -> MailSender.sendTo(addressee, subject, body)))
-                .toList();
+                                                   .map(addressee -> completionService.submit(() -> MailSender.sendTo(
+                                                           addressee,
+                                                           subject,
+                                                           body,
+                                                           attachments)))
+                                                   .toList();
 
         return new Callable<GroupResult>() {
             private int success = 0;
