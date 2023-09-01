@@ -8,6 +8,7 @@ import ru.javaops.web.WebStateException;
 import ru.javaops.web.WsClient;
 
 import javax.xml.namespace.QName;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -44,9 +45,10 @@ public class MailWSClient {
 
     public static GroupResult sendBulk(final Set<Addressee> to,
                                        final String subject,
-                                       final String body) throws WebStateException {
+                                       final String body,
+                                       final List<Attachment> attachments) throws WebStateException {
         log.info("Send bulk to '" + to + "' subject '" + subject + (log.isDebugEnabled() ? "\nbody=" + body : ""));
-        GroupResult result = WS_CLIENT.getPort().sendBulk(to, subject, body, null);
+        GroupResult result = WS_CLIENT.getPort().sendBulk(to, subject, body, attachments);
         log.info("Sent bulk with result: " + result);
         return result;
     }

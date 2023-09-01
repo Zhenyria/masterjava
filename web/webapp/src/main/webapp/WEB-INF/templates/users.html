@@ -40,6 +40,9 @@
         <textarea id="body" placeholder="mail body" cols=75 rows=5></textarea><br/>
     </p>
     <p>
+        <input id="attachment" type="file"/>
+    </p>
+    <p>
         <button type="button" onclick="send()">Send</button>
     </p>
     <pre id="result"></pre>
@@ -47,17 +50,33 @@
 <script type="text/javascript">
     function send() {
         $('#result').html("Sending ...");
-        var users = $("input:checkbox:checked").map(function () {
+        const users = $("input:checkbox:checked").map(function () {
             return this.value;
         }).get();
-//        https://stackoverflow.com/a/22213543/548473
-        $.post("send", "users=" + users + "&subject=" + $("#subject").val() + "&body=" + $("#body").val())
-            .done(function (result) {
+
+        const data = new FormData();
+        data.append('users', users);
+        data.append('subject', document.getElementById('subject').value);
+        data.append('body', document.getElementById('body').value);
+
+        const file = document.getElementById('attachment').files[0];
+        if (file) {
+            data.append('attachment', file);
+        }
+
+        $.ajax({
+            url: 'send',
+            type: 'POST',
+            data: data,
+            contentType: false,
+            processData: false,
+            success: function (result) {
                 $('#result').html(result);
-            })
-            .fail(function (result) {
+            },
+            error: function (result) {
                 $('#result').html(result);
-            });
+            }
+        });
     }
 </script>
 </body>
